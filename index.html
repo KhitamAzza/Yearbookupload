@@ -125,13 +125,13 @@ function upload(){
     document.getElementById("status").innerText="Uploading... jangan ditutup";
 
     try{
-      await fetch(SCRIPT_URL,{
+     await fetch(SCRIPT_URL,{
 method:"POST",
 mode:"no-cors",
 headers:{
-"Content-Type":"application/x-www-form-urlencoded"
+"Content-Type":"application/json"
 },
-body:new URLSearchParams({
+body: JSON.stringify({
 name:name,
 file:base64,
 mime:mime,
@@ -139,7 +139,7 @@ ext:ext
 })
 });
 
-document.getElementById("status").innerText="Upload selesai (cek Drive beberapa detik)";
+document.getElementById("status").innerText="Uploading... tunggu 5-10 detik";
 
 
       document.getElementById("status").innerText="Upload berhasil!";
