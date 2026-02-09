@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kumpul Tugas</title>
+
+<style>
+body{
+  font-family: Arial, Helvetica, sans-serif;
+  background:#f2f4f8;
+  margin:0;
+  padding:20px;
+}
+
+.container{
+  max-width:420px;
+  margin:auto;
+  background:white;
+  padding:22px;
+  border-radius:14px;
+  box-shadow:0 6px 16px rgba(0,0,0,0.15);
+  text-align:center;
+}
+
+h2{
+  margin-top:0;
+}
+
+select, input[type=file], button{
+  width:100%;
+  padding:14px;
+  margin-top:14px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  font-size:16px;
+}
+
+button{
+  background:#2e7d32;
+  color:white;
+  border:none;
+  font-weight:bold;
+}
+
+button:active{
+  background:#1b5e20;
+}
+
+#status{
+  margin-top:16px;
+  font-weight:bold;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+  <h2>Upload Tugas</h2>
+
+<label for="nameList">Pilih Nama:</label>
+<select id="nameList" name="nameList">
+
+
+<label for="fileInput">Pilih File:</label>
+<input type="file" id="fileInput" name="fileInput">
+
+
+<button onclick="upload()">Upload</button>
+
+  <p id="status"></p>
+</div>
+
+<script>
+
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxHANeiWtdTdTGSzXHr-vCy0DMoILzFk87byj8CqRR8qKMa6Oas9RM65Drs_HzhWiSlkw/exec";
+
+
+// load student names
+fetch(SCRIPT_URL)
+.then(res => res.json())
+.then(data => {
+  const select = document.getElementById("nameList");
+  select.innerHTML = "<option value=''>-- Pilih Nama --</option>";
+
+  data.forEach(name=>{
+    const opt=document.createElement("option");
+    opt.value=name;
+    opt.text=name;
+    select.appendChild(opt);
+  });
+})
+.catch(()=>{
+  document.getElementById("status").innerText="Tidak bisa ambil daftar nama";
+});
+
+
+
+function upload(){
+
+  const name=document.getElementById("nameList").value;
+  const file=document.getElementById("fileInput").files[0];
+
+  if(!name){
+    alert("Pilih nama dulu!");
+    return;
+  }
+
+  if(!file){
+    alert("Pilih file dulu!");
+    return;
+  }
+
+  const ext = file.name.split('.').pop();
+  const mime = file.type;
+
+  const reader = new FileReader();
+
+  reader.onload = async function(){
+    const base64 = reader.result.split(",")[1];
+
+    document.getElementById("status").innerText="Uploading... jangan ditutup";
+
+    try{
+      await fetch(SCRIPT_URL,{
+method:"POST",
+mode:"no-cors",
+headers:{
+"Content-Type":"application/x-www-form-urlencoded"
+},
+body:new URLSearchParams({
+name:name,
+file:base64,
+mime:mime,
+ext:ext
+})
+});
+
+document.getElementById("status").innerText="Upload selesai (cek Drive beberapa detik)";
+
+
+      document.getElementById("status").innerText="Upload berhasil!";
+      document.getElementById("fileInput").value="";
+
+    }catch(err){
+      document.getElementById("status").innerText="Upload gagal. Coba lagi.";
+    }
+  };
+
+  reader.readAsDataURL(file);
+}
+
+</script>
+
+</body>
+</html>
